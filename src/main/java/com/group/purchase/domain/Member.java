@@ -5,11 +5,11 @@ import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)      //파라미터가 없는 기본 생성자
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)     //데이터베이스에 데이터가 들어갈 때 자동으로 1, 2, 3... 순서대로 증가
     private Long id;
 
     @Column(unique = true, nullable = false)
