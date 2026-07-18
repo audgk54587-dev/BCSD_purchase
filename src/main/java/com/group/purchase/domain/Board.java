@@ -32,11 +32,32 @@ public class Board {
     //데이터베이스의 board 테이블에 이 관계를 기록할 외래 키(Foreign Key) 컬럼의 이름을 member_id로 지정
     private Member author;
 
+    private int targetParticipants; // 목표 모집 인원
+    private int currentParticipants; // 현재 참여 인원
+
     @Builder
-    public Board(String title, String content, Member author) {
+    public Board(String title, String content, Member author, int targetParticipants) {
         this.title = title;
         this.content = content;
         this.author = author;
+        this.targetParticipants = targetParticipants;
+        this.currentParticipants = 0;
         this.createdAt = LocalDateTime.now();
+    }
+
+    // 인원 증가 로직
+    public void increaseParticipants() {
+        if (this.currentParticipants >= this.targetParticipants) {
+            throw new IllegalArgumentException("모집 인원이 모두 찼습니다.");
+        }
+        this.currentParticipants++;
+    }
+
+    // 인원 감소 로직
+    public void decreaseParticipants() {
+        if (this.currentParticipants <= 0) {
+            throw new IllegalArgumentException("참여 인원이 0명 미만이 될 수 없습니다.");
+        }
+        this.currentParticipants--;
     }
 }

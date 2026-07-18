@@ -1,10 +1,13 @@
 package com.group.purchase.service;
 
 import com.group.purchase.domain.Board;
+import com.group.purchase.domain.BoardParticipant;
 import com.group.purchase.domain.Member;
 import com.group.purchase.dto.BoardResponse;
 import com.group.purchase.dto.CreateBoardRequest;
 import com.group.purchase.dto.DeleteBoardRequest;
+import com.group.purchase.dto.ParticipationRequest;
+import com.group.purchase.repository.BoardParticipantRepository;
 import com.group.purchase.repository.BoardRepository;
 import com.group.purchase.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final BoardParticipantRepository participantRepository;
 
     @Transactional
     //트랜잭션을 적용 -> 중간에 에러가 발생하면 저장하려던 내용이 모두 취소
@@ -31,10 +35,11 @@ public class BoardService {
         Board board = Board.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
-                .author(member)
+                .author(member)     //작성자 정보(연관관계)를 연결
+                .targetParticipants(request.getTargetParticipants())
                 .build();
 
-        boardRepository.save(board);
+        boardRepository.save(board);    //board 객체를 리포지토리(데이터베이스 접근 계층)에 넘김
     }
 
     @Transactional(readOnly = true)
@@ -76,5 +81,38 @@ public class BoardService {
         }
 
         boardRepository.delete(board);
+    }
+
+    //신청 버튼 로직
+    @Transactional
+    public void participate(Long boardId, ParticipationRequest request) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 중복 참여 방지
+        if (participantRepository.existsByBoardAndMember(board, member)) {
+            throw new IllegalArgumentException("이미 참여한 모집글입니다.");
+        }
+
+        board.increaseParticipants(); // Board 엔티티의 현재 인원 +1
+        participantRepository.save(new BoardParticipant(board, member)); // 참여 기록 저장
+    }
+
+    //취소 버튼 로직
+    @Transactional
+    public void cancelParticipation(Long boardId, ParticipationRequest request) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 참여 기록 조회
+        BoardParticipant participant = participantRepository.findByBoardAndMember(board, member)
+                .orElseThrow(() -> new IllegalArgumentException("참여한 기록이 없습니다."));
+
+        board.decreaseParticipants(); // Board 엔티티의 현재 인원 -1
+        participantRepository.delete(participant); // 참여 기록 삭제
     }
 }

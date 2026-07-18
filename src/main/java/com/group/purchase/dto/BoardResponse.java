@@ -1,3 +1,4 @@
+//데이터베이스에서 꺼내온 게시글(엔티티) 정보를 클라이언트(프론트엔드) 화면에 보여주기 알맞은 형태로 가공하여 반환
 package com.group.purchase.dto;
 
 import com.group.purchase.domain.Board;

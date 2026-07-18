@@ -7,6 +7,7 @@ import com.group.purchase.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.group.purchase.dto.ParticipationRequest;
 
 import java.util.List;
 
@@ -48,5 +49,20 @@ public class BoardController {
         //@RequestBody: 클라이언트가 요청 본문(Body)에 담아서 보낸 JSON 데이터
         boardService.deleteBoard(id, request);
         return ResponseEntity.ok("모집글이 성공적으로 삭제되었습니다.");
+    }
+
+    //신청 버튼 클릭
+    @PostMapping("/{id}/participate")
+    public ResponseEntity<String> participate(@PathVariable Long id, @RequestBody ParticipationRequest request) {
+        boardService.participate(id, request);
+        //컨트롤러가 직접 데이터를 수정하지 않고, boardService로 요청을 위임
+        return ResponseEntity.ok("성공적으로 참여하였습니다.");
+    }
+
+    //취소 버튼 클릭
+    @DeleteMapping("/{id}/participate")
+    public ResponseEntity<String> cancelParticipation(@PathVariable Long id, @RequestBody ParticipationRequest request) {
+        boardService.cancelParticipation(id, request);
+        return ResponseEntity.ok("참여가 취소되었습니다.");
     }
 }
