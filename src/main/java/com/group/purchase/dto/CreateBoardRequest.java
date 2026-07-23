@@ -9,4 +9,7 @@ public class CreateBoardRequest {
     private String title;
     private String content;
     private int targetParticipants;
+    private int totalQuantity;
+    private int unitPrice;
+    private String deadline;
 }

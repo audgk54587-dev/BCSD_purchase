@@ -27,21 +27,28 @@ public class Board {
 
     @ManyToOne(fetch = FetchType.LAZY)
     //다대일(N:1) 관계
-    //fetch = FetchType.LAZY: 회원 정보가 진짜 필요한 순간에 추가로 가져오도록
+    //fetch = FetchType.LAZY(지연로딩): 정보가 많이 가져오기 때문에 속도가 느려지는걸 방지
     @JoinColumn(name = "member_id")
     //데이터베이스의 board 테이블에 이 관계를 기록할 외래 키(Foreign Key) 컬럼의 이름을 member_id로 지정
     private Member author;
 
     private int targetParticipants; // 목표 모집 인원
     private int currentParticipants; // 현재 참여 인원
+    private int totalQuantity; // 총 구매 개수
+    private int unitPrice;     // 단가
+    private String deadline;   // 입금 기한
 
     @Builder
-    public Board(String title, String content, Member author, int targetParticipants) {
+    public Board(String title, String content, Member author, int targetParticipants,
+                 int totalQuantity, int unitPrice, String deadline) {
         this.title = title;
         this.content = content;
         this.author = author;
         this.targetParticipants = targetParticipants;
-        this.currentParticipants = 0;
+        this.currentParticipants = 0;   //초기화
+        this.totalQuantity = totalQuantity;
+        this.unitPrice = unitPrice;
+        this.deadline = deadline;
         this.createdAt = LocalDateTime.now();
     }
 

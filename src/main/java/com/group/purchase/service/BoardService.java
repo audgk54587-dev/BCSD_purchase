@@ -35,8 +35,11 @@ public class BoardService {
         Board board = Board.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
-                .author(member)     //작성자 정보(연관관계)를 연결
+                .author(member)
                 .targetParticipants(request.getTargetParticipants())
+                .totalQuantity(request.getTotalQuantity())
+                .unitPrice(request.getUnitPrice())
+                .deadline(request.getDeadline())
                 .build();
 
         boardRepository.save(board);    //board 객체를 리포지토리(데이터베이스 접근 계층)에 넘김
@@ -79,7 +82,7 @@ public class BoardService {
         if (!board.getAuthor().getEmail().equals(request.getEmail())) {
             throw new IllegalArgumentException("해당 게시글을 삭제할 권한이 없습니다.");
         }
-
+        participantRepository.deleteAllByBoard(board);
         boardRepository.delete(board);
     }
 
@@ -98,6 +101,18 @@ public class BoardService {
 
         board.increaseParticipants(); // Board 엔티티의 현재 인원 +1
         participantRepository.save(new BoardParticipant(board, member)); // 참여 기록 저장
+
+        if (board.getCurrentParticipants() == board.getTargetParticipants()) {
+            System.out.println("========================================");
+            System.out.println("💥 목표 인원 도달! 게시글이 자동 폭파됩니다: " + board.getTitle());
+            System.out.println("========================================");
+
+            //참여 기록 먼저 삭제 -> 외래키 제약조건 에러를 막기 위해
+            participantRepository.deleteAllByBoard(board);
+
+            //게시글 삭제
+            boardRepository.delete(board);
+        }
     }
 
     //취소 버튼 로직
@@ -115,4 +130,6 @@ public class BoardService {
         board.decreaseParticipants(); // Board 엔티티의 현재 인원 -1
         participantRepository.delete(participant); // 참여 기록 삭제
     }
+
+
 }
