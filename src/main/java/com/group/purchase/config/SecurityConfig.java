@@ -33,7 +33,8 @@ public class SecurityConfig {
                 //.STATELESS: 앞으로 인증을 처리할 때 서버 쪽에 세션을 아예 생성X, 사용X -> 무상태
                 .authorizeHttpRequests(auth -> auth
                         //어떤 주소(URL)에 누가 접근할 수 있는지 권한(인가) 설정
-                                .requestMatchers("/api/auth/**", "/api/boards/**", "/api/chat/**", "/ws/chat/**", "/api/messages/**").permitAll()
+                                .requestMatchers("/api/auth/**", "/api/boards/**", "/api/chat/**", "/ws/chat/**", "/api/messages/**",
+                                        "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         //requestMatchers: 권한을 설정할 특정 경로들을 지정
                         //permitAll(): 앞서 지정한 경로들에 대해서는 인증(로그인) 절차 없이 누구에게나 접근
                         .anyRequest().authenticated()
